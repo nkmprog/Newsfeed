@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+
+        <title>@ViewBag.Title</title>
+
+        <script src="Scripts/require.js" ></script>
+        <script>
+            require.config({
+                baseUrl: "/Scripts",
+                paths: {
+                    jquery: "jquery-2.0.3",
+                    knockout: "knockout-3.0.0.debug",
+                    knockoutMap: "knockout.mapping-latest.debug",
+                    domReady: "domReady",
+
+                    nfClient: "App/Services/NewsfeedClient",
+                    nfViewModel: "App/ViewModels/NewsfeedViewModel"
+                }
+            });
+        </script>
+    </head>
+    <body>
+        <header>
+        </header>
+        <section>
+            @RenderBody()
+        </section>
+    </body>
+</html>

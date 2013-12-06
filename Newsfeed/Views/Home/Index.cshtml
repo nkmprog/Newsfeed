@@ -1,0 +1,16 @@
+﻿@{
+    ViewBag.Title = "Newsfeed";
+}
+
+<h2>Newsfeed</h2>
+<div>
+    <ul data-bind="foreach: messages">
+        <li>
+            <p data-bind="text: $data"/>
+        </li>
+    </ul>
+    <input type="text" data-bind="value: message"/>
+    <input type="button" data-bind="click: send" Value="Send"/>
+</div>
+
+<script src="~/Scripts/App/Controllers/home-index.js"></script>
