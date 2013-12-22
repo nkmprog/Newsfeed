@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net.WebSockets;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Text;
-using System.Web;
+using Newsfeed.Managers;
 
 namespace Newsfeed.Services
 {
@@ -14,7 +13,7 @@ namespace Newsfeed.Services
         #region Construction
         public NewsfeedService()
         {
-            this.callback = OperationContext.Current.GetCallbackChannel<INewsfeedServiceCallback>();
+            this.currentClient = ClientsManager.Instance.RegisterClient();
         }
         #endregion
 
@@ -26,11 +25,15 @@ namespace Newsfeed.Services
                 var msgBytes = message.GetBody<byte[]>();
                 var content = Encoding.UTF8.GetString(msgBytes);
 
-                this.callback.Send(this.CreateMessage("Recieved message on server: " + content));
+                foreach (var client in ClientsManager.Instance.Clients.Values)
+                {
+                    client.Send(
+                        this.CreateMessage(String.Format("Recieved message on server from {0}: ", OperationContext.Current.SessionId) + content));
+                }                
             }
             else
             {
-                this.callback.Send(this.CreateMessage("Connection opened!"));
+                this.currentClient.Send(this.CreateMessage("Connection opened!"));
             }
         }
         #endregion
@@ -47,7 +50,7 @@ namespace Newsfeed.Services
         #endregion
 
         #region Private fields and constants
-        private INewsfeedServiceCallback callback;
+        private readonly INewsfeedServiceCallback currentClient;
         #endregion
     }
 }
