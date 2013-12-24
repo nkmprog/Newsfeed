@@ -15,10 +15,19 @@
                     knockout: "knockout-3.0.0.debug",
                     knockoutMap: "knockout.mapping-latest.debug",
                     domReady: "domReady",
+                    moment: "moment",
 
                     nfClient: "App/Services/NewsfeedClient",
                     nfViewModel: "App/ViewModels/NewsfeedViewModel"
                 }
+            });
+
+            require(["jquery", "knockout", "moment"], function ($, ko, moment) {
+                ko.bindingHandlers.displayDate = {
+                    update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+                        $(element).text(moment(valueAccessor()).format("MMM Do YYYY, hh:mm:ss"));
+                    }
+                };
             });
         </script>
     </head>

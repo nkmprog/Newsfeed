@@ -6,7 +6,9 @@
 <div>
     <ul data-bind="foreach: messages">
         <li>
-            <p data-bind="text: $data"/>
+            <p>
+                <b><span data-bind="displayDate: SentDate"></span></b> <span data-bind="    text: Text"></span>
+            </p>
         </li>
     </ul>
     <input type="text" data-bind="value: message"/>

@@ -49,6 +49,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceModel.Activation" />
     <Reference Include="System.ServiceModel.Channels" />
@@ -119,10 +120,12 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Managers\ClientsManager.cs" />
+    <Compile Include="Managers\NewsfeedManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\INewsfeedService.cs" />
     <Compile Include="Services\INewsfeedServiceCallback.cs" />
     <Compile Include="Services\NewsfeedService.cs" />
+    <Compile Include="Models\Message.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\FilterConfig.cs" />
@@ -130,7 +133,6 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Content Include="Global.asax" />
     <Content Include="Scripts\App\Controllers\home-index.js" />
-    <Content Include="Scripts\App\main.js" />
     <None Include="Scripts\jquery-2.0.3.intellisense.js" />
     <Content Include="Scripts\App\Services\NewsfeedClient.js" />
     <Content Include="Scripts\App\ViewModels\NewsfeedViewModel.js" />
@@ -141,6 +143,10 @@
     <Content Include="Scripts\knockout-3.0.0.js" />
     <Content Include="Scripts\knockout.mapping-latest.debug.js" />
     <Content Include="Scripts\knockout.mapping-latest.js" />
+    <Content Include="Scripts\moment-with-langs.js" />
+    <Content Include="Scripts\moment-with-langs.min.js" />
+    <Content Include="Scripts\moment.js" />
+    <Content Include="Scripts\moment.min.js" />
     <Content Include="Scripts\require.js" />
     <Content Include="Scripts\_references.js" />
     <Content Include="Web.config">
@@ -157,7 +163,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

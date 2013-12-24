@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Linq;
-using System.Net.WebSockets;
-using System.ServiceModel;
 using System.ServiceModel.Channels;
-using System.Text;
 using Newsfeed.Managers;
+using Model = Newsfeed.Models;
 
 namespace Newsfeed.Services
 {
@@ -20,32 +18,28 @@ namespace Newsfeed.Services
         #region INewsfeedService implementation
         public void Recieve(Message message)
         {
+            var manager = new NewsfeedManager();
+
             if (!message.IsEmpty)
             {
-                var msgBytes = message.GetBody<byte[]>();
-                var content = Encoding.UTF8.GetString(msgBytes);
+                var content = manager.GetMessage(message);
+                content.SentDate = DateTime.Now;
 
                 foreach (var client in ClientsManager.Instance.Clients.Values)
                 {
                     client.Send(
-                        this.CreateMessage(String.Format("Recieved message on server from {0}: ", OperationContext.Current.SessionId) + content));
+                        manager.CreateMessage(content));
                 }                
             }
             else
             {
-                this.currentClient.Send(this.CreateMessage("Connection opened!"));
+                var hello = new Model.Message() 
+                {
+                    Text = "Welcome to the newsfeed!",
+                    SentDate = DateTime.Now
+                };
+                this.currentClient.Send(manager.CreateMessage(hello));
             }
-        }
-        #endregion
-
-        #region Private methods
-        private Message CreateMessage(string content)
-        {
-            var message = ByteStreamMessage.CreateMessage(new ArraySegment<byte>(Encoding.UTF8.GetBytes(content)));
-
-            message.Properties["WebSocketMessageProperty"] = new WebSocketMessageProperty() { MessageType = WebSocketMessageType.Text };
-
-            return message;
         }
         #endregion
 

@@ -6,7 +6,8 @@
         constructor: NewsfeedClient,
 
         send: function (message) {
-            this.client.send(message);
+            var content = JSON.stringify(message);
+            this.client.send(content);
         },
 
         onOpen: function (handler) {
@@ -23,7 +24,8 @@
 
         onMessage: function (handler) {
             this.client.onmessage = function (e) {
-                handler(e);
+                var message = JSON.parse(e.data);
+                handler(message);
             }
         },
 

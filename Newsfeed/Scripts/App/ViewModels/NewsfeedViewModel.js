@@ -17,11 +17,12 @@
         },
 
         send: function () {
-            this.client.send(this.message);
+            var message = { Text: this.message };
+            this.client.send(message);
         },
 
-        onMessage: function (e) {
-            this.messages.push(e.data);
+        onMessage: function (message) {
+            this.messages.push(message);
         }
     };
 
