@@ -18,6 +18,12 @@ namespace Newsfeed.Models
         public string Text { get; set; }
 
         /// <summary>
+        /// Gets or sets the username.
+        /// </summary>
+        /// <value>The username.</value>
+        public string Username { get; set; }
+
+        /// <summary>
         /// Gets or sets the likes.
         /// </summary>
         /// <value>The likes.</value>

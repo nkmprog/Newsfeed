@@ -7,7 +7,12 @@
     <ul data-bind="foreach: messages">
         <li>
             <p>
-                <b><span data-bind="displayDate: SentDate"></span></b> <span data-bind="    text: Text"></span>
+                <b>
+                    <span data-bind="text: Username"> </span>
+                    <span data-bind="displayDate: SentDate"></span>
+                </b>
+                <span data-bind="text: Text"></span>
+                @*<a data-bind="click: like">Like!</a>*@
             </p>
         </li>
     </ul>

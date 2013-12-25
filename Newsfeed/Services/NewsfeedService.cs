@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.ServiceModel;
 using System.ServiceModel.Channels;
 using Newsfeed.Managers;
 using Model = Newsfeed.Models;
@@ -24,6 +25,7 @@ namespace Newsfeed.Services
             {
                 var content = manager.GetMessage(message);
                 content.SentDate = DateTime.Now;
+                content.Username = OperationContext.Current.SessionId;
 
                 foreach (var client in ClientsManager.Instance.Clients.Values)
                 {
