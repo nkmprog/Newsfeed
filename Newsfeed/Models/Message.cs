@@ -27,7 +27,7 @@ namespace Newsfeed.Models
         /// Gets or sets the likes.
         /// </summary>
         /// <value>The likes.</value>
-        public string Likes { get; set; }
+        public int Likes { get; set; }
 
         /// <summary>
         /// Gets or sets the sent date.

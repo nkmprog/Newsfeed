@@ -7,7 +7,12 @@
         <title>@ViewBag.Title</title>
 
         <script src="Scripts/require.js" ></script>
+
         <script>
+            /* This is the app's main script,
+            it is not explicitly loaded by RequireJS because
+            there are race conditions with the scripts loaded in each view */
+
             require.config({
                 baseUrl: "/Scripts",
                 paths: {
@@ -22,10 +27,11 @@
                 }
             });
 
-            require(["jquery", "knockout", "moment"], function ($, ko, moment) {
+            require(["jquery", "knockout","knockoutMap", "moment"], function ($, ko, koMap, moment) {
                 ko.bindingHandlers.displayDate = {
                     update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-                        $(element).text(moment(valueAccessor()).format("MMM Do YYYY, hh:mm:ss"));
+                        var value = koMap.toJS(valueAccessor());
+                        $(element).text(moment(value).format("MMM Do YYYY, hh:mm:ss"));
                     }
                 };
             });

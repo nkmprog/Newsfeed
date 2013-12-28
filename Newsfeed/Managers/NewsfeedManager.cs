@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net.WebSockets;
+using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Text;
 using Newtonsoft.Json;
@@ -28,6 +29,30 @@ namespace Newsfeed.Managers
 
             return JsonConvert.DeserializeObject<Model.Message>(content);
         }
-        #endregion
+
+        public Model.Message ProcessMessage(Message message)
+        {
+            var content = this.GetMessage(message);
+
+            //a new message has been sent to the server
+            if (string.IsNullOrEmpty(content.Id))
+            {
+                content.SentDate = DateTime.Now;
+
+                //TODO: assign username
+                content.Username = OperationContext.Current.SessionId;
+                
+                //TODO: assign id
+                content.Id = Guid.NewGuid().ToString();
+            }
+            else //if(content.Likes > originalMessage.Likes)
+            {
+                //TODO: implement here the like and dislike logic
+                //originalMessage.Likes++;
+            }
+
+            return content;
+        }
+        #endregion        
     }
 }

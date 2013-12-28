@@ -12,7 +12,8 @@
                     <span data-bind="displayDate: SentDate"></span>
                 </b>
                 <span data-bind="text: Text"></span>
-                @*<a data-bind="click: like">Like!</a>*@
+                <a href="#" data-bind="click: function (data, event) { $parent.like(data, event) }">Like!</a>
+                <span data-bind="text: Likes"></span>
             </p>
         </li>
     </ul>

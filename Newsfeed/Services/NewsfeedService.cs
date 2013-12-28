@@ -23,14 +23,19 @@ namespace Newsfeed.Services
 
             if (!message.IsEmpty)
             {
-                var content = manager.GetMessage(message);
-                content.SentDate = DateTime.Now;
-                content.Username = OperationContext.Current.SessionId;
+                var content = manager.ProcessMessage(message);               
 
-                foreach (var client in ClientsManager.Instance.Clients.Values)
+                foreach (var client in ClientsManager.Instance.Clients)
                 {
-                    client.Send(
-                        manager.CreateMessage(content));
+                    try
+                    {
+                        client.Value.Send(
+                            manager.CreateMessage(content));
+                    }
+                    catch (ObjectDisposedException ex)
+                    {
+                        ClientsManager.Instance.RemoveClient(client.Key);
+                    }
                 }                
             }
             else

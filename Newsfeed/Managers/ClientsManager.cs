@@ -63,14 +63,26 @@ namespace Newsfeed.Managers
             if (!this.clients.TryGetValue(sessionId, out client))
             {
                 client = OperationContext.Current.GetCallbackChannel<INewsfeedServiceCallback>();
-            }            
+            }
 
-            ((IChannel)client).Closed += Connection_Closed;
+            var channel = (IChannel)client;
+            channel.Closed += Connection_Closed;
+            channel.Faulted += Connection_Closed;
 
             this.clients.Add(sessionId, client);
 
             return client;
         }
+
+        /// <summary>
+        /// Removes the channel from the collection of all channel.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        internal void RemoveClient(string key)
+        {
+            this.clients.Remove(key);
+        }
+
         #endregion
 
         #region Private methods
