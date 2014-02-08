@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Database.cs" />
+    <Compile Include="GridFSRepository.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="MessageRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
