@@ -13,9 +13,10 @@ namespace Newsfeed.Domain
     {
         private MongoCollection<Message> messageCollection;
 
-        public MessageRepository(MongoCollection<Message> messageCollection)
+        public MessageRepository()
         {
-            this.messageCollection = messageCollection;
+            var db = Database.GetDB();
+            this.messageCollection = db.GetCollection<Message>("messages");
         }
 
         // Inserts a single message into the collection. If the messages is

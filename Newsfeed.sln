@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Newsfeed", "Newsfeed\Newsfeed.csproj", "{9BAC1595-9E7B-4E1F-8333-E7BF75B0898F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Newsfeed.Tests", "Newsfeed.Tests\Newsfeed.Tests.csproj", "{B4FBE1E7-DDC5-4317-96F7-F32E1DC57CAE}"

@@ -7,6 +7,8 @@ using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Newsfeed.Services;
+using System.Web.Configuration;
+using Newsfeed.Domain;
 
 namespace Newsfeed
 {
@@ -23,6 +25,10 @@ namespace Newsfeed
             WebApiConfig.Register(GlobalConfiguration.Configuration);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
+
+            var connectionString = WebConfigurationManager.AppSettings["connectionString"];
+            var databaseName = WebConfigurationManager.AppSettings["databaseName"];
+            Database db = Database.Connection(connectionString, databaseName);
         }
     }
 }

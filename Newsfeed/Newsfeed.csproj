@@ -176,6 +176,12 @@
   <ItemGroup>
     <Content Include="Views\Shared\_Layout.cshtml" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Newsfeed.Domain\Newsfeed.Domain.csproj">
+      <Project>{24c7135f-e2bf-4dee-956e-bbfa281db9c1}</Project>
+      <Name>Newsfeed.Domain</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
