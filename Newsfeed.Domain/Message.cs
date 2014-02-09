@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Newsfeed.Domain
 {
-    class Message
+    public class Message
     {
         public ObjectId Id { get; set; }
 

@@ -3,6 +3,7 @@ using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using Newsfeed.Managers;
+using Domain = Newsfeed.Domain;
 using Model = Newsfeed.Models;
 
 namespace Newsfeed.Services
@@ -21,7 +22,7 @@ namespace Newsfeed.Services
         {
             var manager = new NewsfeedManager();
 
-            if (!message.IsEmpty)
+            if (!message.IsEmpty) //New message is recieved
             {
                 var content = manager.ProcessMessage(message);               
 
@@ -38,7 +39,7 @@ namespace Newsfeed.Services
                     }
                 }                
             }
-            else
+            else //New connection has been created and this is her opening message
             {
                 var hello = new Model.Message() 
                 {
@@ -46,6 +47,15 @@ namespace Newsfeed.Services
                     SentDate = DateTime.Now
                 };
                 this.currentClient.Send(manager.CreateMessage(hello));
+
+                var messagesRepo = new Domain.MessageRepository();
+                var messages = messagesRepo.GetLatestMessages(0, 20);
+
+                foreach (var m in messages)
+                {
+                    var uiMessage = manager.MapDomainMessageToClient(m);
+                    this.currentClient.Send(manager.CreateMessage(uiMessage));
+                }
             }
         }
         #endregion

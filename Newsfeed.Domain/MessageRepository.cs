@@ -1,6 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
+using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Newsfeed.Domain
 {
-    class MessageRepository
+    public class MessageRepository
     {
         private MongoCollection<Message> messageCollection;
 
@@ -58,6 +59,14 @@ namespace Newsfeed.Domain
             var query = Query<Message>.EQ(message => message.Id, id);
             var update = Update<Message>.Inc(message => message.Likes, likes);
             messageCollection.Update(query, update);
+        }
+
+        public IEnumerable<Message> GetLatestMessages(int skip, int take)
+        {
+            return this.messageCollection.AsQueryable<Message>()
+                               .OrderBy(m => m.SentDate)
+                               .Skip(skip)
+                               .Take(take);
         }
     }
 }
