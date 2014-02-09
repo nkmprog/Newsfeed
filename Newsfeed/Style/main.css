@@ -4,3 +4,19 @@
     overflow-x:auto;
     height: 400px;
 }
+
+.nfMessagesWrapper
+{
+    float: left;
+    display:inline;
+    width: 65%;
+    word-wrap: break-word;
+}
+
+.nfNotificationsWrapper
+{
+    float:right;
+    display:inline;
+    width: 30%;
+    word-wrap: break-word;
+}

@@ -43,6 +43,7 @@ namespace Newsfeed.Services
                     case ServiceAction.LikeMessage:
                         manager.LikeMessage(content);
                         this.BroadcastMessage(manager.CreateMessage(content));
+                        this.SendLikeNotification(content);
                         break;
                     default:
                         break;
@@ -57,12 +58,13 @@ namespace Newsfeed.Services
 
                 var hello = new Model.Message()
                 {
+                    Action = ServiceAction.Notification.ToString(),
                     Text = "Welcome to the newsfeed!",
                     SentDate = DateTime.Now
                 };
                 this.currentClient.Send(manager.CreateMessage(hello));
             }
-        }
+        }        
         #endregion
 
         #region Private methods
@@ -95,6 +97,23 @@ namespace Newsfeed.Services
                 uiMessage.Action = ServiceAction.ShowMore.ToString();
                 this.currentClient.Send(manager.CreateMessage(uiMessage));
             }
+        }
+
+        private void SendLikeNotification(Model.Message content)
+        {
+            var notification = new Model.Message()
+            {
+                Action = ServiceAction.Notification.ToString(),
+                //TODO: use the current username
+                Text = String.Format("{0} liked your message: {1}", OperationContext.Current.SessionId, content.Text),
+                SentDate = DateTime.Now
+            };
+
+            var manager = new NewsfeedManager();
+            this.BroadcastMessage(manager.CreateMessage(notification));
+
+            //TODO: use this when we can get the client by user id
+            //ClientsManager.Instance.Clients[content.SenderId.ToString()].Send(manager.CreateMessage(content));
         }
         #endregion
 

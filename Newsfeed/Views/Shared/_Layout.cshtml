@@ -28,7 +28,8 @@
                 }
             });
 
-            require(["jquery", "knockout","knockoutMap", "moment"], function ($, ko, koMap, moment) {
+            require(["jquery", "knockout", "knockoutMap", "moment"], function ($, ko, koMap, moment) {
+                //this is knockout custom binding used for displaying user friendly date (by moment.js library)
                 ko.bindingHandlers.displayDate = {
                     update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
                         var value = koMap.toJS(valueAccessor());

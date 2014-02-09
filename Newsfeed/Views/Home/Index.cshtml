@@ -3,7 +3,7 @@
 }
 
 <h2>Newsfeed</h2>
-<div>
+<div class="nfMessagesWrapper">
     <input type="button" data-bind="click: showMore" value="Show more"/>
     <ul data-bind="foreach: messages" id="messagesList" class="nfScrollable">
         <li>
@@ -20,6 +20,19 @@
     </ul>
     <input type="text" data-bind="value: message, event: { keypress: sendKeypress }, valueUpdate: 'keypress'"/>
     <input type="button" data-bind="click: send" Value="Send"/>
+</div>
+
+<div class="nfNotificationsWrapper">
+    <ul data-bind="foreach: notifications">
+        <li>
+            <p>
+                <b>
+                    <span data-bind="displayDate: SentDate"></span>
+                </b>
+                <span data-bind="text: Text"></span>
+            </p>
+        </li>
+    </ul>
 </div>
 
 <script src="~/Scripts/App/Controllers/home-index.js"></script>

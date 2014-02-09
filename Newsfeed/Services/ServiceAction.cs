@@ -4,6 +4,7 @@
     {
         ShowMore,
         NewMessage,
-        LikeMessage
+        LikeMessage,
+        Notification
     }
 }
