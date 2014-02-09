@@ -20,6 +20,7 @@
     </ul>
     <input type="text" data-bind="value: message, event: { keypress: sendKeypress }, valueUpdate: 'keypress'"/>
     <input type="button" data-bind="click: send" Value="Send"/>
+    @Html.ActionLink("Logout", "User", "Logout");
 </div>
 
 <div class="nfNotificationsWrapper">

@@ -15,9 +15,10 @@ namespace Newsfeed.Domain
         /// Initializes a new instance of the <see cref="UserRepository" /> class.
         /// </summary>
         /// <param name="users">The users.</param>
-        public UserRepository(MongoCollection<User> users)
+        public UserRepository()
         {
-            this.users = users;
+            var db = Database.GetDB();
+            this.users = db.GetCollection<User>("users");
         }
 
         /// <summary>
@@ -42,9 +43,9 @@ namespace Newsfeed.Domain
         /// Gets the specified id.
         /// </summary>
         /// <param name="id">The id.</param>
-        public void Get(ObjectId id)
+        public User Get(ObjectId id)
         {
-            this.users.FindOne(Query.EQ("Id", id));
+           return this.users.FindOne(Query.EQ("Id", id));
         }
 
         /// <summary>
@@ -64,5 +65,10 @@ namespace Newsfeed.Domain
         }
 
         private readonly MongoCollection<User> users;
+
+        public User Get(string username)
+        {
+            return this.users.FindOne(Query.EQ("Username", username));
+        }
     }
 }

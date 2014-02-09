@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Security;
 
 namespace Newsfeed.Controllers
 {
@@ -10,7 +11,7 @@ namespace Newsfeed.Controllers
     {
         //
         // GET: /Home/
-
+        [Authorize]
         public ActionResult Index()
         {
             return View();
