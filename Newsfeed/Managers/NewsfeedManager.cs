@@ -54,10 +54,10 @@ namespace Newsfeed.Managers
         public void LikeMessage(Model.Message message)
         {
             if (!string.IsNullOrEmpty(message.Id))
-            //if(content.Likes > originalMessage.Likes)
             {
-                //TODO: implement here the like and dislike logic
-                //originalMessage.Likes++;
+                var repo = new Domain.MessageRepository();
+                repo.UpdateMessageLikes(new ObjectId(message.Id), 1);
+                message.Likes++;
             }
         }
 

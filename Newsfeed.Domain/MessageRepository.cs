@@ -47,14 +47,14 @@ namespace Newsfeed.Domain
             messageCollection.Remove(query);
         }
 
-        public void updateMessageContent(ObjectId id, string content)
+        public void UpdateMessageContent(ObjectId id, string content)
         {
             var query = Query<Message>.EQ(message => message.Id, id);
             var update = Update<Message>.Set(message => message.Text, content);
             messageCollection.Update(query, update);
         }
 
-        public void updateMessageLikes(ObjectId id, int likes)
+        public void UpdateMessageLikes(ObjectId id, int likes)
         {
             var query = Query<Message>.EQ(message => message.Id, id);
             var update = Update<Message>.Inc(message => message.Likes, likes);

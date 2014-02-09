@@ -23,7 +23,6 @@
 
         like: function (data, event) {
             var message = koMap.toJS(data);
-            message.Likes++;
             message.Action="LikeMessage",
             this.client.send(message);
         },

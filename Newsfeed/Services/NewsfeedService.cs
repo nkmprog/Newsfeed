@@ -33,16 +33,16 @@ namespace Newsfeed.Services
                 {
                     case ServiceAction.ShowMore:
                         var messagesRepo = new Domain.MessageRepository();
-                        //content.DisplayedMessages - 1 because of the welcome message which is not in the database
-                        var messages = messagesRepo.GetLatestMessages(content.DisplayedMessages - 1, 20);
+                        var messages = messagesRepo.GetLatestMessages(content.DisplayedMessages, 20);
                         this.SendOlderMessagesToClient(messages, manager);
                         break;
                     case ServiceAction.NewMessage:
                         manager.SaveMessage(content);
-                        this.BroadcastMessage(manager.CreateMessage(content));    
+                        this.BroadcastMessage(manager.CreateMessage(content));
                         break;
                     case ServiceAction.LikeMessage:
                         manager.LikeMessage(content);
+                        this.BroadcastMessage(manager.CreateMessage(content));
                         break;
                     default:
                         break;
