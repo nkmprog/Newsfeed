@@ -134,6 +134,8 @@
     <Compile Include="Services\INewsfeedServiceCallback.cs" />
     <Compile Include="Services\NewsfeedService.cs" />
     <Compile Include="Models\Message.cs" />
+    <Compile Include="Services\ServiceAction.cs" />
+    <Content Include="Style\main.css" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\FilterConfig.cs" />

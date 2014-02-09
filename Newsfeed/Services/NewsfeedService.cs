@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
@@ -24,38 +25,75 @@ namespace Newsfeed.Services
 
             if (!message.IsEmpty) //New message is recieved
             {
-                var content = manager.ProcessMessage(message);               
+                var content = manager.GetMessage(message);               
 
-                foreach (var client in ClientsManager.Instance.Clients)
+                var action = (ServiceAction)Enum.Parse(typeof(ServiceAction), content.Action);
+
+                switch (action)
                 {
-                    try
-                    {
-                        client.Value.Send(
-                            manager.CreateMessage(content));
-                    }
-                    catch (ObjectDisposedException ex)
-                    {
-                        ClientsManager.Instance.RemoveClient(client.Key);
-                    }
-                }                
+                    case ServiceAction.ShowMore:
+                        var messagesRepo = new Domain.MessageRepository();
+                        //content.DisplayedMessages - 1 because of the welcome message which is not in the database
+                        var messages = messagesRepo.GetLatestMessages(content.DisplayedMessages - 1, 20);
+                        this.SendOlderMessagesToClient(messages, manager);
+                        break;
+                    case ServiceAction.NewMessage:
+                        manager.SaveMessage(content);
+                        this.BroadcastMessage(manager.CreateMessage(content));    
+                        break;
+                    case ServiceAction.LikeMessage:
+                        manager.LikeMessage(content);
+                        break;
+                    default:
+                        break;
+                }                            
             }
             else //New connection has been created and this is her opening message
             {
-                var hello = new Model.Message() 
+                var messagesRepo = new Domain.MessageRepository();
+                var messages = messagesRepo.GetLatestMessages(0, 20);
+
+                this.SendOlderMessagesToClient(messages, manager);
+
+                var hello = new Model.Message()
                 {
                     Text = "Welcome to the newsfeed!",
                     SentDate = DateTime.Now
                 };
                 this.currentClient.Send(manager.CreateMessage(hello));
+            }
+        }
+        #endregion
 
-                var messagesRepo = new Domain.MessageRepository();
-                var messages = messagesRepo.GetLatestMessages(0, 20);
-
-                foreach (var m in messages)
-                {
-                    var uiMessage = manager.MapDomainMessageToClient(m);
-                    this.currentClient.Send(manager.CreateMessage(uiMessage));
+        #region Private methods
+        private void BroadcastMessage(Message message)
+        {
+            foreach (var client in ClientsManager.Instance.Clients)
+            {
+                try
+                {                    
+                    client.Value.Send(message);
                 }
+                //TODO Exception handling
+                catch (ObjectDisposedException ex)
+                {
+                    //TODO: this will modify the collection and will throw exception
+                    //ClientsManager.Instance.RemoveClient(client.Key);
+                }
+                catch
+                {
+
+                }
+            }
+        }
+
+        private void SendOlderMessagesToClient(IEnumerable<Domain.Message> messages, NewsfeedManager manager)
+        {
+            foreach (var m in messages)
+            {
+                var uiMessage = manager.MapDomainMessageToClient(m);
+                uiMessage.Action = ServiceAction.ShowMore.ToString();
+                this.currentClient.Send(manager.CreateMessage(uiMessage));
             }
         }
         #endregion

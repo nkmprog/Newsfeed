@@ -64,9 +64,9 @@ namespace Newsfeed.Domain
         public IEnumerable<Message> GetLatestMessages(int skip, int take)
         {
             return this.messageCollection.AsQueryable<Message>()
-                               .OrderBy(m => m.SentDate)
-                               .Skip(skip)
-                               .Take(take);
+                        .OrderByDescending(m => m.SentDate)
+                        .Skip(skip)
+                        .Take(take);
         }
     }
 }

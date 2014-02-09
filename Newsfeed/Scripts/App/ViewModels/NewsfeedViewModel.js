@@ -7,7 +7,8 @@
         this.messagesKeys = [];
         this.messages = ko.observableArray();
         
-        this.message = null;
+        this.message = ko.observable();
+        this.messagesListCapacity = 20;
 
         this.initialize();
     }
@@ -23,11 +24,38 @@
         like: function (data, event) {
             var message = koMap.toJS(data);
             message.Likes++;
+            message.Action="LikeMessage",
             this.client.send(message);
         },
 
         send: function () {
-            var message = { Text: this.message };
+            if (!this.message()) {
+                return;
+            }
+
+            var message = {
+                Text: this.message(),
+                Action: "NewMessage"
+            };
+            this.client.send(message);
+
+            this.message("");
+        },
+
+        sendKeypress: function (data, event) {
+            if (event.keyCode == 13) {
+                this.send();                
+                return false;
+            }
+            return true;
+        },
+
+        showMore: function () {
+            var message = {
+                DisplayedMessages: this.messages().length,
+                Action: "ShowMore"
+            }
+
             this.client.send(message);
         },
 
@@ -45,7 +73,24 @@
                 //add new message
                 var observable = koMap.fromJS(message);
                 this.messagesKeys[message.Id] = observable;
-                this.messages.push(observable);
+
+                var messageList = $("#messagesList");
+                var isScrolledToBottom = messageList.scrollTop() + messageList.height() == messageList[0].scrollHeight;
+
+                if (message.Action == "ShowMore") {
+                    this.messages.unshift(observable);
+                }
+                else {
+                    this.messages.push(observable);
+                    if (this.messages().length > this.messagesListCapacity) {
+                        this.messages.shift();
+                    }                    
+                }
+
+                if (isScrolledToBottom) {
+                    //Scroll to bottom only if the user has already scrolled to bottom
+                    messageList.scrollTop(messageList.prop('scrollHeight'));
+                }
             }          
         }
     };

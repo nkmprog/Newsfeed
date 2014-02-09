@@ -32,36 +32,34 @@ namespace Newsfeed.Managers
             return JsonConvert.DeserializeObject<Model.Message>(content);
         }
 
-        public Model.Message ProcessMessage(Message message)
+        public void SaveMessage(Model.Message message)
         {
             var messagesRepo = new Domain.MessageRepository();
 
-            var content = this.GetMessage(message);
-
             //a new message has been sent to the server
-            if (string.IsNullOrEmpty(content.Id))
-            {
-                content.SentDate = DateTime.Now;
+            message.SentDate = DateTime.Now;
 
-                //TODO: assign username
-                content.Username = OperationContext.Current.SessionId;
-                content.SenderId = ObjectId.GenerateNewId().ToString();
+            //TODO: assign username
+            message.Username = OperationContext.Current.SessionId;
+            message.SenderId = ObjectId.GenerateNewId().ToString();
 
-                //Save the message to the db
-                var messageDto = MapClientMessageToDomain(content);
+            //Save the message to the db
+            var messageDto = MapClientMessageToDomain(message);
 
-                messagesRepo.InsertMessage(messageDto);
+            messagesRepo.InsertMessage(messageDto);
 
-                content.Id = messageDto.Id.ToString();
-            }
-            else //if(content.Likes > originalMessage.Likes)
+            message.Id = messageDto.Id.ToString();
+        }
+
+        public void LikeMessage(Model.Message message)
+        {
+            if (!string.IsNullOrEmpty(message.Id))
+            //if(content.Likes > originalMessage.Likes)
             {
                 //TODO: implement here the like and dislike logic
                 //originalMessage.Likes++;
             }
-
-            return content;
-        }        
+        }
 
         public Domain.Message MapClientMessageToDomain(Model.Message message)
         {           

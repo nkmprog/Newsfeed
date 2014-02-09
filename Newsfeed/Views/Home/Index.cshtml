@@ -4,7 +4,8 @@
 
 <h2>Newsfeed</h2>
 <div>
-    <ul data-bind="foreach: messages">
+    <input type="button" data-bind="click: showMore" value="Show more"/>
+    <ul data-bind="foreach: messages" id="messagesList" class="nfScrollable">
         <li>
             <p>
                 <b>
@@ -17,7 +18,7 @@
             </p>
         </li>
     </ul>
-    <input type="text" data-bind="value: message"/>
+    <input type="text" data-bind="value: message, event: { keypress: sendKeypress }, valueUpdate: 'keypress'"/>
     <input type="button" data-bind="click: send" Value="Send"/>
 </div>
 

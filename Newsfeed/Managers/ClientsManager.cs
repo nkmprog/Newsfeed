@@ -57,6 +57,7 @@ namespace Newsfeed.Managers
         /// <returns></returns>
         public INewsfeedServiceCallback RegisterClient()
         {
+            //TODO: change the key not to be session Id, use the logged user id
             var sessionId = OperationContext.Current.SessionId;
             INewsfeedServiceCallback client;
 
@@ -88,7 +89,11 @@ namespace Newsfeed.Managers
         #region Private methods
         private void Connection_Closed(object sender, EventArgs e)
         {
-            this.clients.Remove(OperationContext.Current.SessionId);
+            //TODO: change the key not to be session Id
+            if (OperationContext.Current != null)
+            {
+                this.clients.Remove(OperationContext.Current.SessionId);
+            }            
         }
         #endregion
 
