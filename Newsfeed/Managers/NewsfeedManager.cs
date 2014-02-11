@@ -32,16 +32,17 @@ namespace Newsfeed.Managers
             return JsonConvert.DeserializeObject<Model.Message>(content);
         }
 
-        public void SaveMessage(Model.Message message)
+        public void SaveMessage(Model.Message message, string username)
         {
             var messagesRepo = new Domain.MessageRepository();
+            var usersRepo = new Domain.UserRepository();
+            var user = usersRepo.Get(username);
 
             //a new message has been sent to the server
             message.SentDate = DateTime.Now;
 
-            //TODO: assign username
-            message.Username = OperationContext.Current.SessionId;
-            message.SenderId = ObjectId.GenerateNewId().ToString();
+            message.Username = username;
+            message.SenderId = user.Id.ToString();
 
             //Save the message to the db
             var messageDto = MapClientMessageToDomain(message);
@@ -49,6 +50,32 @@ namespace Newsfeed.Managers
             messagesRepo.InsertMessage(messageDto);
 
             message.Id = messageDto.Id.ToString();
+        }
+
+        public bool TryGetCurrentUsername(Message message, out string username)
+        {
+            var property = (WebSocketMessageProperty)message.Properties["WebSocketMessageProperty"];
+            var context = property.WebSocketContext;
+
+            if (context.IsAuthenticated)
+            {
+                username = context.User.Identity.Name;
+                return true;
+            }
+            username = null;
+            return false;
+        }
+
+        public bool ValidateSameOrigin(Message message)
+        {
+            var property = (WebSocketMessageProperty)message.Properties["WebSocketMessageProperty"];
+            var context = property.WebSocketContext;
+
+            var origin = context.Origin;
+
+            var host = String.Concat(context.RequestUri.Scheme, "://", context.RequestUri.Authority);
+
+            return origin == host;
         }
 
         public void LikeMessage(Model.Message message)

@@ -13,8 +13,7 @@ namespace Newsfeed.Services
     {
         #region Construction
         public NewsfeedService()
-        {
-            this.currentClient = ClientsManager.Instance.RegisterClient();
+        {            
         }
         #endregion
 
@@ -23,9 +22,16 @@ namespace Newsfeed.Services
         {
             var manager = new NewsfeedManager();
 
+            string username;
+            if (!manager.TryGetCurrentUsername(message, out username) || !manager.ValidateSameOrigin(message))
+            {
+                //If the sender is not logged user or the message comes from different domain do nothing
+                return;
+            }
+
             if (!message.IsEmpty) //New message is recieved
             {
-                var content = manager.GetMessage(message);               
+                var content = manager.GetMessage(message);
 
                 var action = (ServiceAction)Enum.Parse(typeof(ServiceAction), content.Action);
 
@@ -37,13 +43,13 @@ namespace Newsfeed.Services
                         this.SendOlderMessagesToClient(messages, manager);
                         break;
                     case ServiceAction.NewMessage:
-                        manager.SaveMessage(content);
-                        this.BroadcastMessage(manager.CreateMessage(content));
+                        manager.SaveMessage(content, username);
+                        this.BroadcastMessage(content);
                         break;
                     case ServiceAction.LikeMessage:
                         manager.LikeMessage(content);
-                        this.BroadcastMessage(manager.CreateMessage(content));
-                        this.SendLikeNotification(content);
+                        this.BroadcastMessage(content);
+                        this.SendLikeNotification(content, username);
                         break;
                     default:
                         break;
@@ -51,6 +57,9 @@ namespace Newsfeed.Services
             }
             else //New connection has been created and this is her opening message
             {
+                //Associate the opened channel with the logged user
+                this.currentClient = ClientsManager.Instance.RegisterClient(message);
+
                 var messagesRepo = new Domain.MessageRepository();
                 var messages = messagesRepo.GetLatestMessages(0, 20);
 
@@ -68,24 +77,23 @@ namespace Newsfeed.Services
         #endregion
 
         #region Private methods
-        private void BroadcastMessage(Message message)
+        private void BroadcastMessage(Model.Message message)
         {
-            foreach (var client in ClientsManager.Instance.Clients)
+            //Prevent modifying the collection when someone is sending message
+            lock (NewsfeedService.clientsLock)
             {
-                try
-                {                    
-                    client.Value.Send(message);
-                }
-                //TODO Exception handling
-                catch (ObjectDisposedException ex)
+                var manager = new NewsfeedManager();
+                foreach (var client in ClientsManager.Instance.Clients)
                 {
-                    //TODO: this will modify the collection and will throw exception
-                    //ClientsManager.Instance.RemoveClient(client.Key);
+                    try
+                    {
+                        client.Value.Callback.Send(manager.CreateMessage(message));
+                    }
+                    catch
+                    {
+                    }
                 }
-                catch
-                {
-
-                }
+                ClientsManager.Instance.ClearFailed();
             }
         }
 
@@ -99,26 +107,30 @@ namespace Newsfeed.Services
             }
         }
 
-        private void SendLikeNotification(Model.Message content)
+        private void SendLikeNotification(Model.Message content, string username)
         {
             var notification = new Model.Message()
             {
                 Action = ServiceAction.Notification.ToString(),
-                //TODO: use the current username
-                Text = String.Format("{0} liked your message: {1}", OperationContext.Current.SessionId, content.Text),
+                Text = String.Format("{0} liked your message: {1}", username, content.Text),
                 SentDate = DateTime.Now
             };
 
             var manager = new NewsfeedManager();
-            this.BroadcastMessage(manager.CreateMessage(notification));
+            var notificationMessage = manager.CreateMessage(notification);
 
-            //TODO: use this when we can get the client by user id
-            //ClientsManager.Instance.Clients[content.SenderId.ToString()].Send(manager.CreateMessage(content));
+            ChannelWrapper client;
+            if (ClientsManager.Instance.Clients.TryGetValue(content.Username, out client))
+            {
+                //TODO: save the notifcation in the database so the user can recieve it later when he is logged;
+                client.Callback.Send(notificationMessage);
+            }
         }
         #endregion
 
         #region Private fields and constants
-        private readonly INewsfeedServiceCallback currentClient;
+        private INewsfeedServiceCallback currentClient;
+        private static object clientsLock = new object();
         #endregion
     }
 }
