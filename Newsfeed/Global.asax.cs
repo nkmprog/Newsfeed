@@ -20,8 +20,6 @@ namespace Newsfeed
         {
             AreaRegistration.RegisterAllAreas();
 
-            RouteTable.Routes.Add(new ServiceRoute("feed", new ServiceHostFactory(), typeof(NewsfeedService))); 
-
             WebApiConfig.Register(GlobalConfiguration.Configuration);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
