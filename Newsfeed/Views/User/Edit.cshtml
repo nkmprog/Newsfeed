@@ -1,0 +1,54 @@
+﻿@model Newsfeed.Models.User
+@{
+    ViewBag.Title = "User Profile";
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>User Profile</title>
+</head>
+    <body>
+@using (Html.BeginForm())
+{ 
+    @Html.ValidationSummary(true, "Login failed. Check your login details.");
+        <div>
+            <div class="info-label">
+                @Html.Label("Type new user name")
+            </div>
+            <div class="info-field">
+                @Html.TextBox("newUserName")
+            </div>
+            <div class="info-label">
+                @Html.LabelFor(u => u.BlockedUsers)
+            </div>
+            <div class="info-label">
+               <ul>
+                @foreach (var blockedUser in ((List<string>)Model.BlockedUsers))
+                {
+                   <li>
+                       @Html.Encode(blockedUser)
+                   </li>
+                }
+               </ul>
+            </div>
+            <div class="editor-label">
+                @Html.Label("Enter the username of the user you want to block")
+            </div>
+            <div class="editor-label">
+                @Html.TextBox("userToBlock")
+            </div>
+            <div class="editor-label">
+                @Html.Label("Enter the username of the user you want to unblock")
+            </div>
+            <div class="editor-label">
+                @Html.TextBox("userToUnblock")
+            </div>
+            <input type="submit" value="Save changes" />
+            @Html.ActionLink("Chatroom", "Index", "Home")
+            @Html.ActionLink("Change password", "Password", "User")
+        </div>   
+}
+    </body>
+</html>

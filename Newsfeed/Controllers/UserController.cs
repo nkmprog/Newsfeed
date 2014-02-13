@@ -64,10 +64,84 @@ namespace Newsfeed.Controllers
             }
             return View();
         }
-
+        
+        [HttpGet]
         public ActionResult Logout()
         {
             FormsAuthentication.SignOut();
+            return RedirectToAction("Login", "User");
+        }
+
+        [Authorize]
+        [HttpGet]
+        public ActionResult Edit()
+        {
+            var username = HttpContext.User.Identity.Name;
+            var userManager = new UserManager();
+            var user = userManager.GetUserByUserName(username);
+            return View(user);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public ActionResult Edit(string newUserName, string userToBlock, string userToUnblock) 
+        {
+            var oldUserName = HttpContext.User.Identity.Name;
+            var userManager = new UserManager();
+            var user = userManager.GetUserByUserName(oldUserName);
+            Boolean changed = false;
+            if (newUserName != null && newUserName != "" && oldUserName != newUserName && !userManager.IsRegistered(newUserName))
+            {
+                // Change the user name and client information
+                // Drop the old cookie and create a new one
+                FormsAuthentication.SignOut();
+                FormsAuthentication.SetAuthCookie(newUserName, false);
+                user.Username = newUserName;
+                changed = true;
+            }
+            if (userToBlock != null && userToBlock != userToUnblock) 
+            {
+                if (userToBlock != oldUserName && userToBlock != newUserName && userManager.IsRegistered(userToBlock))
+                {
+                    user.BlockedUsers.Add(userToBlock);
+                    changed = true;
+                }
+
+                if (user.BlockedUsers.Contains(userToUnblock))
+                {
+                    user.BlockedUsers.Remove(userToUnblock);
+                    changed = true;
+                }
+            }
+
+            if (changed == true)
+            {
+                userManager.SaveChanges(user);
+            }
+            
+            return View(user);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public ActionResult Password() 
+        {
+            return View();
+        }
+
+        [Authorize]
+        [HttpPost]
+        public ActionResult Password(string newPassword, string newPasswordConfirmation)
+        {
+            var oldUserName = HttpContext.User.Identity.Name;
+            var userManager = new UserManager();
+            var user = userManager.GetUserByUserName(oldUserName);
+
+            if (newPassword == newPasswordConfirmation && newPassword != user.Password)
+            {
+                user.Password = newPassword;
+                userManager.SaveChanges(user);
+            }
             return View();
         }
     }
