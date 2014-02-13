@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel.Channels;
 using System.Web;
+using Newsfeed.Domain;
 using Newsfeed.Services;
 
 namespace Newsfeed.Managers
@@ -25,6 +26,8 @@ namespace Newsfeed.Managers
 
         #region Wrapper public properties
         public string Username { get; private set; }
+
+        public User User { get; set; }
 
         public IChannel OriginalChannel
         {

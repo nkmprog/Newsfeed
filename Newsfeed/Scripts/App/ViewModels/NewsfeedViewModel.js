@@ -63,6 +63,11 @@
             this.client.send(message);
         },
 
+        avatarSrc: function (data) {
+            var message = koMap.toJS(data);
+            return "/api/image/" + message.AvatarId;
+        },
+
 
         /********** Methods not used for data binding **********/
 

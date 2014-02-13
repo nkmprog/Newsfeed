@@ -42,6 +42,12 @@ namespace Newsfeed.Models
         public string SenderId { get; set; }
 
         /// <summary>
+        /// Gets or sets the user's avatar id.
+        /// </summary>
+        /// <value>The avatar id.</value>
+        public string AvatarId { get; set; }
+
+        /// <summary>
         /// Gets or sets the action to which the server should react.
         /// </summary>
         /// <value>The action.</value>

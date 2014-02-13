@@ -32,17 +32,17 @@ namespace Newsfeed.Managers
             return JsonConvert.DeserializeObject<Model.Message>(content);
         }
 
-        public void SaveMessage(Model.Message message, string username)
+        public void SaveMessage(Model.Message message, Domain.User user)
         {
             var messagesRepo = new Domain.MessageRepository();
             var usersRepo = new Domain.UserRepository();
-            var user = usersRepo.Get(username);
 
             //a new message has been sent to the server
             message.SentDate = DateTime.Now;
 
-            message.Username = username;
+            message.Username = user.Username;
             message.SenderId = user.Id.ToString();
+            message.AvatarId = user.Avatar.ToString();
 
             //Save the message to the db
             var messageDto = MapClientMessageToDomain(message);
@@ -98,7 +98,8 @@ namespace Newsfeed.Managers
                 Author = new BsonDocument
                     {
                         {"Id", new ObjectId(message.SenderId)},
-                        {"Username", message.Username}
+                        {"Username", message.Username},
+                        {"Avatar", new ObjectId(message.AvatarId)}
                     }
             };
 
@@ -117,8 +118,12 @@ namespace Newsfeed.Managers
                 Text = message.Text,
                 Likes = message.Likes,
                 SenderId = message.Author.GetValue("Id").ToString(),
-                Username = message.Author.GetValue("Username").ToString()
+                Username = message.Author.GetValue("Username").ToString(),
             };
+
+            BsonValue avatar;
+            if (message.Author.TryGetValue("Avatar", out avatar))
+                model.AvatarId = avatar.ToString();
 
             return model;
         }

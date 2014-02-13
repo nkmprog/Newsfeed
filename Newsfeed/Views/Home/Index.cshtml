@@ -6,16 +6,21 @@
 <div class="nfMessagesWrapper">
     <input type="button" data-bind="click: showMore" value="Show more"/>
     <ul data-bind="foreach: messages" id="messagesList" class="nfScrollable">
-        <li>
-            <p>
-                <b>
-                    <span data-bind="text: Username"> </span>
-                    <span data-bind="displayDate: SentDate"></span>
-                </b>
-                <span data-bind="text: Text"></span>
+        <li class="clearfix">
+            <div class="nfMessageInfo">
+                <img class="nfAvatar" data-bind="attr: { src: $parent.avatarSrc($data)}"/>
+            
+                <span class="nfUsername" data-bind="text: Username"> </span>
+                <span class="nfDate" data-bind="displayDate: SentDate"></span> 
+            </div>
+
+            <div class="nfLikePanel">
                 <a href="#" data-bind="click: function (data, event) { $parent.like(data, event) }">Like!</a>
                 <span data-bind="text: Likes"></span>
-            </p>
+            </div>
+
+            <span class="nfText" data-bind="text: Text"></span>
+            
         </li>
     </ul>
     <input type="text" data-bind="value: message, event: { keypress: sendKeypress }, valueUpdate: 'keypress'"/>

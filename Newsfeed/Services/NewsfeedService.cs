@@ -43,7 +43,7 @@ namespace Newsfeed.Services
                         this.SendOlderMessagesToClient(messages, manager);
                         break;
                     case ServiceAction.NewMessage:
-                        manager.SaveMessage(content, username);
+                        manager.SaveMessage(content, this.currentClient.User);
                         this.BroadcastMessage(content);
                         break;
                     case ServiceAction.LikeMessage:
@@ -71,7 +71,7 @@ namespace Newsfeed.Services
                     Text = "Welcome to the newsfeed!",
                     SentDate = DateTime.Now
                 };
-                this.currentClient.Send(manager.CreateMessage(hello));
+                this.currentClient.Callback.Send(manager.CreateMessage(hello));
             }
         }        
         #endregion
@@ -103,7 +103,7 @@ namespace Newsfeed.Services
             {
                 var uiMessage = manager.MapDomainMessageToClient(m);
                 uiMessage.Action = ServiceAction.ShowMore.ToString();
-                this.currentClient.Send(manager.CreateMessage(uiMessage));
+                this.currentClient.Callback.Send(manager.CreateMessage(uiMessage));
             }
         }
 
@@ -129,7 +129,7 @@ namespace Newsfeed.Services
         #endregion
 
         #region Private fields and constants
-        private INewsfeedServiceCallback currentClient;
+        private ChannelWrapper currentClient;
         private static object clientsLock = new object();
         #endregion
     }

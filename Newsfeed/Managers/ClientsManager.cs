@@ -4,6 +4,7 @@ using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Web;
+using Domain = Newsfeed.Domain;
 using Newsfeed.Services;
 
 namespace Newsfeed.Managers
@@ -56,7 +57,7 @@ namespace Newsfeed.Managers
         /// Gets the current callback channel and adds it to the collection of all channels.
         /// </summary>
         /// <returns></returns>
-        public INewsfeedServiceCallback RegisterClient(Message message)
+        public ChannelWrapper RegisterClient(Message message)
         {
             var manager = new NewsfeedManager();
 
@@ -69,7 +70,7 @@ namespace Newsfeed.Managers
                 if (this.clients.TryGetValue(username, out wrapper))
                 {
                     this.clients.Remove(username);
-                }
+                }                
 
                 var client = OperationContext.Current.GetCallbackChannel<INewsfeedServiceCallback>();                
 
@@ -77,9 +78,12 @@ namespace Newsfeed.Managers
                 wrapper.Closed += Connection_Closed;
                 wrapper.Faulted += Connection_Closed;
 
+                var usersRepository = new Domain.UserRepository();
+                wrapper.User = usersRepository.Get(username);
+
                 this.clients.Add(username, wrapper);
 
-                return client;
+                return wrapper;
             }
 
             return null;

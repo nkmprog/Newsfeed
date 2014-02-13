@@ -37,7 +37,8 @@ namespace Newsfeed.Managers
             var userDTO = new Domain.User()
             {
                 Username = userCTO.Username,
-                Password = userCTO.Password
+                Password = userCTO.Password,
+                Avatar = userCTO.AvatarId
             };
 
             return userDTO;
