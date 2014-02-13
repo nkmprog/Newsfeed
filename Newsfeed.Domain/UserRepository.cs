@@ -64,11 +64,18 @@ namespace Newsfeed.Domain
             }));
         }
 
-        private readonly MongoCollection<User> users;
-
         public User Get(string username)
         {
             return this.users.FindOne(Query.EQ("Username", username));
         }
+
+        public void UpdateUserName(string username, string newUserName)
+        {
+            var query = Query<User>.EQ(user => user.Username, username);
+            var update = Update<User>.Set(user => user.Username, newUserName);
+            users.Update(query, update);
+        }
+
+        private readonly MongoCollection<User> users;
     }
 }
