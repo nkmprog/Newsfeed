@@ -9,11 +9,10 @@
     <meta name="viewport" content="width=device-width" />
     <title>User Profile</title>
 </head>
-
+    <body>
 @using (Html.BeginForm())
 { 
     @Html.ValidationSummary(true, "Login failed. Check your login details.");
-    <body>
         <div>
             <div class="info-label">
                 @Html.Label("Type new user name")
@@ -48,7 +47,8 @@
             </div>
             <input type="submit" value="Save changes" />
             @Html.ActionLink("Chatroom", "Index", "Home")
-        </div>
-    </body>
+            @Html.ActionLink("Change password", "Password", "User")
+        </div>   
 }
+    </body>
 </html>

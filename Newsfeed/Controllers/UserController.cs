@@ -117,5 +117,28 @@ namespace Newsfeed.Controllers
             
             return View(user);
         }
+
+        [Authorize]
+        [HttpGet]
+        public ActionResult Password() 
+        {
+            return View();
+        }
+
+        [Authorize]
+        [HttpPost]
+        public ActionResult Password(string newPassword, string newPasswordConfirmation)
+        {
+            var oldUserName = HttpContext.User.Identity.Name;
+            var userManager = new UserManager();
+            var user = userManager.GetUserByUserName(oldUserName);
+
+            if (newPassword == newPasswordConfirmation && newPassword != user.Password)
+            {
+                user.Password = newPassword;
+                userManager.SaveChanges(user);
+            }
+            return View();
+        }
     }
 }
