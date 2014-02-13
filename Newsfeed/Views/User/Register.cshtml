@@ -10,7 +10,7 @@
     <title>Register</title>
 </head>
 <body>
-    @using (Html.BeginForm())
+    @using (Html.BeginForm("Register", "User", FormMethod.Post, new {enctype="multipart/form-data"}))
     {
         @Html.ValidationSummary(true, "Registration Failed.");
         <div class="editor-label">
@@ -27,6 +27,7 @@
             @Html.PasswordFor(u => u.Password)
             @Html.ValidationMessageFor(u => u.Password)
         </div>
+        <div>Upload new avatar: <input type="file" name="Avatar" /></div>
         <input type="submit" value="Log In" />
     }
 </body>

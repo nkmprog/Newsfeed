@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using MongoDB.Bson;
 
 namespace Newsfeed.Models
 {
@@ -14,6 +15,8 @@ namespace Newsfeed.Models
         public string Password { get; set; }
 
         public string AvatarPath { get; set; }
+
+        public ObjectId AvatarId { get; set; }
 
         //contains the objectId to username mapping of the blocked user.
         public Dictionary<string, string> BlockedUsers { get; set; }

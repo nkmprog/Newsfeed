@@ -5,6 +5,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
+using Newsfeed.Domain;
 
 namespace Newsfeed.Controllers
 {
@@ -42,15 +43,18 @@ namespace Newsfeed.Controllers
         }
 
         [HttpPost]
-        public ActionResult Register(Models.User user)
+        public ActionResult Register(Models.User user, HttpPostedFileBase avatar)
         {
             var userManager = new UserManager();
+            var gridFS = new GridFSRepository();
             if (ModelState.IsValid)
             {
                 //check if user already exists
                 if (!userManager.IsRegistered(user.Username))
                 {
+                    user.AvatarId = gridFS.UploadFile(avatar.InputStream, avatar.FileName);
                     userManager.RegisterUser(user);
+                 
                     return RedirectToAction("Index", "Home");
                 }
                 else

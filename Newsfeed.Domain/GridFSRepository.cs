@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.GridFS;
 
 namespace Newsfeed.Domain
 {
@@ -26,6 +27,23 @@ namespace Newsfeed.Domain
                 return  (ObjectId)fileId;
             }
         }
+
+        public ObjectId UploadFile(Stream file, string fileName)
+        {
+            var gridFsInfo = database.GridFS.Upload(file, fileName);
+            var fileId = gridFsInfo.Id;
+
+            file.Close();
+
+            return (ObjectId)fileId;
+        }
+
+        public Stream GetFile(ObjectId fileId)
+        {
+            var fileInfo = database.GridFS.FindOneById(fileId);
+            var fileStream = fileInfo.OpenRead();
+            return fileStream;
+        }        
 
         private readonly MongoDatabase database;
     }
