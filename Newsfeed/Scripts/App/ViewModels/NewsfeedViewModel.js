@@ -68,6 +68,12 @@
             return "/api/image/" + message.AvatarId;
         },
 
+        blockUser: function (data, event) {
+            var message = koMap.toJS(data);
+            message.Action = "BlockUser",
+            this.client.send(message);
+        },
+
 
         /********** Methods not used for data binding **********/
 

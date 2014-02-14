@@ -61,12 +61,16 @@ namespace Newsfeed.Domain
             messageCollection.Update(query, update);
         }
 
-        public IEnumerable<Message> GetLatestMessages(int skip, int take)
+        public IEnumerable<Message> GetLatestMessages(int skip, int take, IList<BsonDocument> blockedUsers)
         {
-            return this.messageCollection.AsQueryable<Message>()
-                        .OrderByDescending(m => m.SentDate)
-                        .Skip(skip)
-                        .Take(take);
+            var blocked = blockedUsers.Select(u => { return u.GetValue("Username"); });
+
+            var messages = this.messageCollection.Find(Query.NotIn("Author.Username", blocked));
+
+            return messages.AsQueryable<Message>()
+                .OrderByDescending(m => m.SentDate)
+                .Skip(skip)
+                .Take(take);
         }
     }
 }

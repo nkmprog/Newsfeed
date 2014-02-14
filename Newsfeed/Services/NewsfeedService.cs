@@ -39,7 +39,7 @@ namespace Newsfeed.Services
                 {
                     case ServiceAction.ShowMore:
                         var messagesRepo = new Domain.MessageRepository();
-                        var messages = messagesRepo.GetLatestMessages(content.DisplayedMessages, 20);
+                        var messages = messagesRepo.GetLatestMessages(content.DisplayedMessages, 20, this.currentClient.User.BlockedUsers);
                         this.SendOlderMessagesToClient(messages, manager);
                         break;
                     case ServiceAction.NewMessage:
@@ -51,6 +51,9 @@ namespace Newsfeed.Services
                         this.BroadcastMessage(content);
                         this.SendLikeNotification(content, username);
                         break;
+                    case ServiceAction.BlockUser:
+                        manager.BlockUser(this.currentClient.User, content);
+                        break;
                     default:
                         break;
                 }                            
@@ -61,7 +64,7 @@ namespace Newsfeed.Services
                 this.currentClient = ClientsManager.Instance.RegisterClient(message);
 
                 var messagesRepo = new Domain.MessageRepository();
-                var messages = messagesRepo.GetLatestMessages(0, 20);
+                var messages = messagesRepo.GetLatestMessages(0, 20, this.currentClient.User.BlockedUsers);
 
                 this.SendOlderMessagesToClient(messages, manager);
 
@@ -87,6 +90,13 @@ namespace Newsfeed.Services
                 {
                     try
                     {
+                        //get only usernames from the BsonDosument collection
+                        var blockedUsernames = client.Value.User.BlockedUsers.Select(u => u.GetElement("Username").Value.AsString);
+                        if (blockedUsernames.Contains(message.Username))
+                        {
+                            continue;
+                        }
+
                         client.Value.Callback.Send(manager.CreateMessage(message));
                     }
                     catch
@@ -130,7 +140,7 @@ namespace Newsfeed.Services
 
         #region Private fields and constants
         private ChannelWrapper currentClient;
-        private static object clientsLock = new object();
+        private static readonly object clientsLock = new object();
         #endregion
     }
 }

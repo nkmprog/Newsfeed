@@ -11,7 +11,8 @@
                 <img class="nfAvatar" data-bind="attr: { src: $parent.avatarSrc($data)}"/>
             
                 <span class="nfUsername" data-bind="text: Username"> </span>
-                <span class="nfDate" data-bind="displayDate: SentDate"></span> 
+                <span class="nfDate" data-bind="displayDate: SentDate"></span>
+                <a href="#" data-bind="click: function (data, event) { $parent.blockUser(data, event) }">Block this user</a>
             </div>
 
             <div class="nfLikePanel">

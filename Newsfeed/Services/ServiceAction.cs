@@ -5,6 +5,7 @@
         ShowMore,
         NewMessage,
         LikeMessage,
-        Notification
+        Notification,
+        BlockUser
     }
 }

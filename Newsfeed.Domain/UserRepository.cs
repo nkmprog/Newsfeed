@@ -56,7 +56,7 @@ namespace Newsfeed.Domain
         /// <param name="blockedUsername">The blocked username.</param>
         public void Block(ObjectId userId, ObjectId blockedUserId, string blockedUsername)
         {
-            this.users.Update(Query.EQ("Id", userId),
+            this.users.Update(Query.EQ("_id", userId),
                 Update.AddToSet("BlockedUsers",
                     new BsonDocument{
                         {"Id", blockedUserId},

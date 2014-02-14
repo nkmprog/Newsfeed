@@ -88,6 +88,18 @@ namespace Newsfeed.Managers
             }
         }
 
+        internal void BlockUser(Domain.User user, Model.Message content)
+        {
+            var repo = new Domain.UserRepository();
+            repo.Block(user.Id, new ObjectId(content.SenderId), content.Username);
+
+            user.BlockedUsers.Add(new BsonDocument
+            {
+                {"_id", new ObjectId(content.SenderId)},
+                {"Username", content.Username}
+            });
+        }
+
         public Domain.Message MapClientMessageToDomain(Model.Message message)
         {           
             var messageDto = new Domain.Message()
@@ -127,6 +139,6 @@ namespace Newsfeed.Managers
 
             return model;
         }
-        #endregion
+        #endregion        
     }
 }
