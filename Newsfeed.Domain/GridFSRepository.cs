@@ -43,7 +43,15 @@ namespace Newsfeed.Domain
             var fileInfo = database.GridFS.FindOneById(fileId);
             var fileStream = fileInfo.OpenRead();
             return fileStream;
-        }        
+        }
+
+        public void RemoveFile(ObjectId fileId)
+        {
+            if (database.GridFS.ExistsById(fileId))
+            {
+                database.GridFS.DeleteById(fileId);
+            }
+        }
 
         private readonly MongoDatabase database;
     }

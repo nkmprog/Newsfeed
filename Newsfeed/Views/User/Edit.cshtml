@@ -10,7 +10,7 @@
     <title>User Profile</title>
 </head>
     <body>
-@using (Html.BeginForm())
+@using (Html.BeginForm("Edit", "User", FormMethod.Post, new { enctype = "multipart/form-data" }))
 { 
     @Html.ValidationSummary(true, "Login failed. Check your login details.");
         <div>
@@ -45,6 +45,7 @@
             <div class="editor-label">
                 @Html.TextBox("userToUnblock")
             </div>
+            <div>Upload new avatar:</div><br/> <input type="file" name="Avatar"/>
             <input type="submit" value="Save changes" />
             @Html.ActionLink("Chatroom", "Index", "Home")
             @Html.ActionLink("Change password", "Password", "User")

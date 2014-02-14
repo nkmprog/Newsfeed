@@ -84,7 +84,7 @@ namespace Newsfeed.Controllers
 
         [Authorize]
         [HttpPost]
-        public ActionResult Edit(string newUserName, string userToBlock, string userToUnblock) 
+        public ActionResult Edit(string newUserName, string userToBlock, string userToUnblock, HttpPostedFileBase avatar) 
         {
             var oldUserName = HttpContext.User.Identity.Name;
             var userManager = new UserManager();
@@ -113,7 +113,13 @@ namespace Newsfeed.Controllers
                     changed = true;
                 }
             }
-
+            if (avatar != null)
+            {
+                var gridFs = new GridFSRepository();
+                gridFs.RemoveFile(user.AvatarId);
+                user.AvatarId = gridFs.UploadFile(avatar.InputStream, avatar.FileName);
+                changed = true;
+            }
             if (changed == true)
             {
                 userManager.SaveChanges(user);
