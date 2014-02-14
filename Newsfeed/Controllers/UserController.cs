@@ -144,5 +144,14 @@ namespace Newsfeed.Controllers
             }
             return View();
         }
+
+        [Authorize]
+        [HttpGet]
+        public ActionResult Ratings()
+        {
+            var userManager = new UserManager();
+            ViewBag.Ratings = userManager.generateUserRatings();
+            return View();
+        }
     }
 }

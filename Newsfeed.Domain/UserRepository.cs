@@ -18,7 +18,9 @@ namespace Newsfeed.Domain
         public UserRepository()
         {
             var db = Database.GetDB();
+            this.ratings = db.GetCollection("ratings");
             this.users = db.GetCollection<User>("users");
+            this.messages = db.GetCollection<Message>("messages");
         }
 
         /// <summary>
@@ -77,5 +79,68 @@ namespace Newsfeed.Domain
         }
 
         private readonly MongoCollection<User> users;
+        private readonly MongoCollection<Message> messages;
+        private readonly MongoCollection ratings;
+
+        // This should be a service action.
+        public Dictionary<string, double> generateRatings()
+        {
+            var finalResults = new Dictionary<string, double>();
+            // TODO: perform incremental mapReduce
+            // Join the messsages and users tables on the username
+            string mapMessages = @"
+                function() {
+                    emit(this.Author.username, { blockedBy : 0, Likes : this.Likes});
+            }";
+            string mapUsers = @"
+                function() {
+                    emit(this.Username, { blockedBy : 0, Likes : 0});
+                    for (var i = 0; i < this.BlockedUsers.length; i++){
+                        var blockedUser = this.BlockedUsers[i];
+                        emit(blockedUser.Username, { blockedBy : 1, Likes : 0 });
+                    }
+            }";
+            string reduce = @"
+                function(key, values){
+                    var result = { blockedBy : 0, Likes : 0 };
+                    values.forEach(function(value) {
+                        result.blockedBy += value.blockedBy;
+                        result.Likes += value.Likes;  
+                    });
+                    return result;
+            }";
+            string finalize = @"
+                function(key, reducedValue){
+                    var blocked = 1;
+                    if(reducedValue.blockedBy != 0){
+                        blocked = parseInt(reducedValue.blockedBy);
+                    }
+                    var rating = parseInt(reducedValue.Likes) / (blocked * blocked);
+                    reducedValue.rating = parseInt(rating);
+                    return reducedValue;
+            }";
+            var options = new MapReduceOptionsBuilder();
+            options.SetOutput(new MapReduceOutput { 
+                CollectionName = "ratings",
+                Mode = MapReduceOutputMode.Reduce
+            });
+            messages.MapReduce(mapMessages, reduce, options);
+            options.SetFinalize(finalize);
+            users.MapReduce(mapUsers, reduce, options);
+            
+            // Since sorting requires a pre build index 
+            // when using mapReduce we issue another query.
+            var results = ratings.FindAllAs<BsonDocument>().SetSortOrder(SortBy.Descending("value.rating"));
+
+            foreach ( var result in results ) 
+            {
+                var values = result["value"];
+                var rating = values["rating"].AsDouble;
+                var username = result["_id"].AsString;
+                finalResults.Add(username, rating);
+            }
+
+            return finalResults;
+        }
     }
 }

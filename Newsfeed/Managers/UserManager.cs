@@ -109,5 +109,12 @@ namespace Newsfeed.Managers
             var domainUser = MapClientUserToDomain(user);
             userRepository.Save(domainUser);
         }
+
+        public Dictionary<string, double> generateUserRatings()
+        {
+            var ratingsMap = new Dictionary<string, double>();
+            ratingsMap = userRepository.generateRatings();
+            return ratingsMap;
+        }
     }
 }

@@ -1,0 +1,20 @@
+﻿@{
+    ViewBag.Title = "Ratings";
+}
+
+<h2>Ratings</h2>
+<div class="info-label">
+    <ol>
+    @foreach (KeyValuePair<string, double> user in @ViewBag.Ratings)
+    {
+        <li>
+            <span>
+                Username : @Html.Encode(user.Key)
+            </span>
+            <span>
+                Rating : @Html.Encode(user.Value)
+            </span>
+        </li>
+    }
+    </ol>
+</div>
