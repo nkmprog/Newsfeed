@@ -19,12 +19,21 @@ namespace Newsfeed.Controllers
             var gridFS = new GridFSRepository();
             var fileId = new ObjectId(id);
 
-            var fileStream = gridFS.GetFile(fileId);
+            var response = new HttpResponseMessage();
 
-            var response = new HttpResponseMessage(HttpStatusCode.OK);
+            try
+            {
+                var fileStream = gridFS.GetFile(fileId);                
 
-            response.Content = new StreamContent(fileStream);
-            response.Content.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
+                response.Content = new StreamContent(fileStream);
+                response.Content.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
+                response.StatusCode = HttpStatusCode.OK;
+            }
+            catch
+            {
+                response.StatusCode = HttpStatusCode.NotFound;
+            }
+
 
             return response;
         }

@@ -60,6 +60,8 @@ namespace Newsfeed.Services
             }
             else //New connection has been created and this is her opening message
             {
+                ClientsManager.Instance.ClearFailed();
+
                 //Associate the opened channel with the logged user
                 this.currentClient = ClientsManager.Instance.RegisterClient(message);
 
