@@ -40,5 +40,23 @@ namespace Newsfeed.Models
         /// </summary>
         /// <value>The sender id.</value>
         public string SenderId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the user's avatar id.
+        /// </summary>
+        /// <value>The avatar id.</value>
+        public string AvatarId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the action to which the server should react.
+        /// </summary>
+        /// <value>The action.</value>
+        public string Action { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of displayed messages on the client.
+        /// </summary>
+        /// <value>The displayed messages count.</value>
+        public int DisplayedMessages { get; set; }
     }
 }

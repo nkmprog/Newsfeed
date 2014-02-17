@@ -6,7 +6,8 @@
 
         <title>@ViewBag.Title</title>
 
-        <script src="Scripts/require.js" ></script>
+        <link rel="stylesheet" type="text/css" href="~/Style/main.css" />
+        <script src="~/Scripts/require.js" ></script>
 
         <script>
             /* This is the app's main script,
@@ -27,7 +28,8 @@
                 }
             });
 
-            require(["jquery", "knockout","knockoutMap", "moment"], function ($, ko, koMap, moment) {
+            require(["jquery", "knockout", "knockoutMap", "moment"], function ($, ko, koMap, moment) {
+                //this is knockout custom binding used for displaying user friendly date (by moment.js library)
                 ko.bindingHandlers.displayDate = {
                     update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
                         var value = koMap.toJS(valueAccessor());
@@ -40,7 +42,7 @@
     <body>
         <header>
         </header>
-        <section>
+        <section class="nfMainWrapper clearfix">
             @RenderBody()
         </section>
     </body>

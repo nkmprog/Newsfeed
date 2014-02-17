@@ -3,22 +3,47 @@
 }
 
 <h2>Newsfeed</h2>
-<div>
-    <ul data-bind="foreach: messages">
+<div class="nfMessagesWrapper">
+    <input type="button" data-bind="click: showMore" value="Show more"/>
+    <ul data-bind="foreach: messages" id="messagesList" class="nfScrollable">
+        <li class="clearfix">
+            <div class="nfMessageInfo">
+                <img class="nfAvatar" data-bind="attr: { src: $parent.avatarSrc($data)}"/>
+            
+                <span class="nfUsername" data-bind="text: Username"> </span>
+                <span class="nfDate" data-bind="displayDate: SentDate"></span>
+                <a href="#" data-bind="click: function (data, event) { $parent.blockUser(data, event) }">Block this user</a>
+            </div>
+
+            <div class="nfLikePanel">
+                <a href="#" data-bind="click: function (data, event) { $parent.like(data, event) }">Like!</a>
+                <span data-bind="text: Likes"></span>
+            </div>
+
+            <span class="nfText" data-bind="text: Text"></span>
+            
+        </li>
+    </ul>
+    <input type="text" data-bind="value: message, event: { keypress: sendKeypress }, valueUpdate: 'keypress'"/>
+    <input type="button" data-bind="click: send" Value="Send"/>
+    <div>
+        <p>@Html.ActionLink("Logout", "Logout", "User")</p>
+        <p>@Html.ActionLink("User Profile", "Edit", "User")</p>
+        <p>@Html.ActionLink("User Ratings!", "Ratings", "User")</p>
+    </div>
+</div>
+
+<div class="nfNotificationsWrapper">
+    <ul data-bind="foreach: notifications">
         <li>
             <p>
                 <b>
-                    <span data-bind="text: Username"> </span>
                     <span data-bind="displayDate: SentDate"></span>
                 </b>
                 <span data-bind="text: Text"></span>
-                <a href="#" data-bind="click: function (data, event) { $parent.like(data, event) }">Like!</a>
-                <span data-bind="text: Likes"></span>
             </p>
         </li>
     </ul>
-    <input type="text" data-bind="value: message"/>
-    <input type="button" data-bind="click: send" Value="Send"/>
 </div>
 
 <script src="~/Scripts/App/Controllers/home-index.js"></script>

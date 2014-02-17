@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using Newsfeed.Managers;
+using Domain = Newsfeed.Domain;
 using Model = Newsfeed.Models;
 
 namespace Newsfeed.Services
@@ -11,8 +13,7 @@ namespace Newsfeed.Services
     {
         #region Construction
         public NewsfeedService()
-        {
-            this.currentClient = ClientsManager.Instance.RegisterClient();
+        {            
         }
         #endregion
 
@@ -21,37 +22,127 @@ namespace Newsfeed.Services
         {
             var manager = new NewsfeedManager();
 
-            if (!message.IsEmpty)
+            string username;
+            if (!manager.TryGetCurrentUsername(message, out username) || !manager.ValidateSameOrigin(message))
             {
-                var content = manager.ProcessMessage(message);               
+                //If the sender is not logged user or the message comes from different domain do nothing
+                return;
+            }
 
+            if (!message.IsEmpty) //New message is recieved
+            {
+                var content = manager.GetMessage(message);
+
+                var action = (ServiceAction)Enum.Parse(typeof(ServiceAction), content.Action);
+
+                switch (action)
+                {
+                    case ServiceAction.ShowMore:
+                        var messagesRepo = new Domain.MessageRepository();
+                        var messages = messagesRepo.GetLatestMessages(content.DisplayedMessages, 20, this.currentClient.User.BlockedUsers);
+                        this.SendOlderMessagesToClient(messages, manager);
+                        break;
+                    case ServiceAction.NewMessage:
+                        manager.SaveMessage(content, this.currentClient.User);
+                        this.BroadcastMessage(content);
+                        break;
+                    case ServiceAction.LikeMessage:
+                        manager.LikeMessage(content);
+                        this.BroadcastMessage(content);
+                        this.SendLikeNotification(content, username);
+                        break;
+                    case ServiceAction.BlockUser:
+                        manager.BlockUser(this.currentClient.User, content);
+                        break;
+                    default:
+                        break;
+                }                            
+            }
+            else //New connection has been created and this is her opening message
+            {
+                ClientsManager.Instance.ClearFailed();
+
+                //Associate the opened channel with the logged user
+                this.currentClient = ClientsManager.Instance.RegisterClient(message);
+
+                var messagesRepo = new Domain.MessageRepository();
+                var messages = messagesRepo.GetLatestMessages(0, 20, this.currentClient.User.BlockedUsers);
+
+                this.SendOlderMessagesToClient(messages, manager);
+
+                var hello = new Model.Message()
+                {
+                    Action = ServiceAction.Notification.ToString(),
+                    Text = "Welcome to the newsfeed!",
+                    SentDate = DateTime.Now
+                };
+                this.currentClient.Callback.Send(manager.CreateMessage(hello));
+            }
+        }        
+        #endregion
+
+        #region Private methods
+        private void BroadcastMessage(Model.Message message)
+        {
+            //Prevent modifying the collection when someone is sending message
+            lock (NewsfeedService.clientsLock)
+            {
+                var manager = new NewsfeedManager();
                 foreach (var client in ClientsManager.Instance.Clients)
                 {
                     try
                     {
-                        client.Value.Send(
-                            manager.CreateMessage(content));
+                        //get only usernames from the BsonDosument collection
+                        var blockedUsernames = client.Value.User.BlockedUsers.Select(u => u.GetElement("Username").Value.AsString);
+                        if (blockedUsernames.Contains(message.Username))
+                        {
+                            continue;
+                        }
+
+                        client.Value.Callback.Send(manager.CreateMessage(message));
                     }
-                    catch (ObjectDisposedException ex)
+                    catch
                     {
-                        ClientsManager.Instance.RemoveClient(client.Key);
                     }
-                }                
+                }
+                ClientsManager.Instance.ClearFailed();
             }
-            else
+        }
+
+        private void SendOlderMessagesToClient(IEnumerable<Domain.Message> messages, NewsfeedManager manager)
+        {
+            foreach (var m in messages)
             {
-                var hello = new Model.Message() 
-                {
-                    Text = "Welcome to the newsfeed!",
-                    SentDate = DateTime.Now
-                };
-                this.currentClient.Send(manager.CreateMessage(hello));
+                var uiMessage = manager.MapDomainMessageToClient(m);
+                uiMessage.Action = ServiceAction.ShowMore.ToString();
+                this.currentClient.Callback.Send(manager.CreateMessage(uiMessage));
+            }
+        }
+
+        private void SendLikeNotification(Model.Message content, string username)
+        {
+            var notification = new Model.Message()
+            {
+                Action = ServiceAction.Notification.ToString(),
+                Text = String.Format("{0} liked your message: {1}", username, content.Text),
+                SentDate = DateTime.Now
+            };
+
+            var manager = new NewsfeedManager();
+            var notificationMessage = manager.CreateMessage(notification);
+
+            ChannelWrapper client;
+            if (ClientsManager.Instance.Clients.TryGetValue(content.Username, out client))
+            {
+                //TODO: save the notifcation in the database so the user can recieve it later when he is logged;
+                client.Callback.Send(notificationMessage);
             }
         }
         #endregion
 
         #region Private fields and constants
-        private readonly INewsfeedServiceCallback currentClient;
+        private ChannelWrapper currentClient;
+        private static readonly object clientsLock = new object();
         #endregion
     }
 }

@@ -1,0 +1,102 @@
+﻿body, html
+{
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow:hidden;
+}
+
+ul
+{
+    list-style-type:none;
+    padding:0;
+    margin: 10px
+}
+
+.nfScrollable
+{
+    overflow-y: scroll;
+    overflow-x:auto;
+    height: 100%;
+}
+
+.nfMessagesWrapper
+{
+    float: left;
+    display:inline;
+    width: 65%;
+    height: 100%;
+    word-wrap: break-word;
+}
+
+.nfMessagesWrapper ul li
+{
+    min-height: 120px;
+    margin-bottom: 20px;
+}
+
+.nfNotificationsWrapper
+{
+    float:right;
+    display:inline;
+    width: 30%;
+    word-wrap: break-word;
+}
+
+.nfAvatar
+{
+    width:100px;
+    height: 100px;
+    /*float: left;*/
+    margin: 0px;
+}
+
+.nfUsername
+{
+    font-weight:bold;
+    /*display:block;*/
+}
+
+.nfText
+{
+    display:inline;
+    width:70%;
+    float:right;
+    margin:5px;
+}
+
+.nfDate
+{
+    display: block;
+}
+
+.nfMessageInfo
+{
+    width: 130px;
+    display: block;
+    float:left;
+}
+
+.nfMainWrapper
+{
+    width: 60%;
+    height: 70%;
+    margin-left:auto;
+    margin-right:auto;
+
+    font-family: Tahoma, Arial, Helvetica, sans-serif;
+}
+
+.nfLikePanel
+{
+    float: right;
+    margin-right: 10px;
+}
+
+.clearfix:after{
+    content: ".";
+    display: block;
+    line-height: 0;
+    clear: both;
+    visibility: hidden;
+}

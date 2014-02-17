@@ -4,6 +4,7 @@ using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Web;
+using Domain = Newsfeed.Domain;
 using Newsfeed.Services;
 
 namespace Newsfeed.Managers
@@ -16,7 +17,8 @@ namespace Newsfeed.Managers
         #region Construction
         private ClientsManager()
         {
-            this.clients = new Dictionary<string, INewsfeedServiceCallback>();
+            this.clients = new Dictionary<string, ChannelWrapper>();
+            this.failedClients = new List<string>();
         }
         #endregion
 
@@ -44,7 +46,7 @@ namespace Newsfeed.Managers
         /// Gets all clients connected to the service.
         /// </summary>
         /// <value>The clients.</value>
-        public Dictionary<string, INewsfeedServiceCallback> Clients
+        public Dictionary<string, ChannelWrapper> Clients
         {
             get { return clients; }
         }
@@ -55,46 +57,65 @@ namespace Newsfeed.Managers
         /// Gets the current callback channel and adds it to the collection of all channels.
         /// </summary>
         /// <returns></returns>
-        public INewsfeedServiceCallback RegisterClient()
+        public ChannelWrapper RegisterClient(Message message)
         {
-            var sessionId = OperationContext.Current.SessionId;
-            INewsfeedServiceCallback client;
+            var manager = new NewsfeedManager();
 
-            if (!this.clients.TryGetValue(sessionId, out client))
+            string username;
+            if (manager.TryGetCurrentUsername(message, out username))
             {
-                client = OperationContext.Current.GetCallbackChannel<INewsfeedServiceCallback>();
+                ChannelWrapper wrapper;
+
+                //If the user is logged and resfresh the page, a new channel will be opened and the old should be removed
+                if (this.clients.TryGetValue(username, out wrapper))
+                {
+                    this.clients.Remove(username);
+                }                
+
+                var client = OperationContext.Current.GetCallbackChannel<INewsfeedServiceCallback>();                
+
+                wrapper = new ChannelWrapper(username, client);
+                wrapper.Closed += Connection_Closed;
+                wrapper.Faulted += Connection_Closed;
+
+                var usersRepository = new Domain.UserRepository();
+                wrapper.User = usersRepository.Get(username);
+
+                this.clients.Add(username, wrapper);
+
+                return wrapper;
             }
 
-            var channel = (IChannel)client;
-            channel.Closed += Connection_Closed;
-            channel.Faulted += Connection_Closed;
-
-            this.clients.Add(sessionId, client);
-
-            return client;
+            return null;
         }
 
-        /// <summary>
-        /// Removes the channel from the collection of all channel.
-        /// </summary>
-        /// <param name="key">The key.</param>
-        internal void RemoveClient(string key)
+        public void MarkAsFailed(string key)
         {
-            this.clients.Remove(key);
+            this.failedClients.Add(key);
         }
 
+        public void ClearFailed()
+        {
+            foreach (var client in this.failedClients)
+            {
+                this.clients.Remove(client);
+            }
+            this.failedClients.Clear();
+        }
         #endregion
 
         #region Private methods
         private void Connection_Closed(object sender, EventArgs e)
         {
-            this.clients.Remove(OperationContext.Current.SessionId);
+            var wrapper = (ChannelWrapper)sender;
+            this.MarkAsFailed(wrapper.Username);           
         }
         #endregion
 
         #region Private fields and constants
         private static volatile ClientsManager instance;
-        private readonly Dictionary<string, INewsfeedServiceCallback> clients;
+        private readonly Dictionary<string, ChannelWrapper> clients;
+        private readonly List<string> failedClients;
         private static readonly object managerLock = new object();
         #endregion
     }
